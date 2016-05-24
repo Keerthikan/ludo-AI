@@ -186,9 +186,14 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
             cout << "No Special move found!" << endl;
             if(current_position != 99)
             {
-                cout << "is not inside home" << endl;
+                cout << "Is not in goal" << endl;
                 input[2] = 1;
-                cout << "Move to Free Space" << endl;
+                cout << "Just move" << endl;
+            }
+            else
+            {
+                cout << "Already in goal! -  no move possible!" << endl;
+
             }
         }
     }
@@ -449,10 +454,18 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[8] == 1)
+        if(input_actions[0] == 0 &&
+                input_actions[1] == 0 &&
+                input_actions[2] == 0 &&
+                input_actions[3] == 0 &&
+                input_actions[4] == 0 &&
+                input_actions[5] == 0 &&
+                input_actions[6] == 0 &&
+                input_actions[7] == 0 &&
+                input_actions[8] == 0 )
         {
-           actions.push_back(10);
-           cout << "Just move" << endl;
+            cout << "No move possible" << endl;
+            actions.push_back(10);
         }
         cout << "Amount of Actions for given state: " << actions.size() << endl;
         for(unsigned int i = 0 ; i < actions.size(); i++)
@@ -525,10 +538,18 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[8] == 1)
+        if(input_actions[0] == 0 &&
+                input_actions[1] == 0 &&
+                input_actions[2] == 0 &&
+                input_actions[3] == 0 &&
+                input_actions[4] == 0 &&
+                input_actions[5] == 0 &&
+                input_actions[6] == 0 &&
+                input_actions[7] == 0 &&
+                input_actions[8] == 0 )
         {
-           actions.push_back(10);
-           cout << "Just move" << endl;
+            cout << "No move possible" << endl;
+            actions.push_back(10);
         }
         cout << "Amount of Actions for given state: " << actions.size() << endl;
         for(unsigned int i = 0 ; i < actions.size(); i++)
@@ -601,10 +622,18 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[8] == 1)
+        if(input_actions[0] == 0 &&
+                input_actions[1] == 0 &&
+                input_actions[2] == 0 &&
+                input_actions[3] == 0 &&
+                input_actions[4] == 0 &&
+                input_actions[5] == 0 &&
+                input_actions[6] == 0 &&
+                input_actions[7] == 0 &&
+                input_actions[8] == 0 )
         {
-           actions.push_back(10);
-           cout << "Just move" << endl;
+            cout << "No move possible" << endl;
+            actions.push_back(10);
         }
         cout << "Amount of Actions for given state: " << actions.size() << endl;
         for(unsigned int i = 0 ; i < actions.size(); i++)
@@ -677,10 +706,18 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[8] == 1)
+        if(input_actions[0] == 0 &&
+                input_actions[1] == 0 &&
+                input_actions[2] == 0 &&
+                input_actions[3] == 0 &&
+                input_actions[4] == 0 &&
+                input_actions[5] == 0 &&
+                input_actions[6] == 0 &&
+                input_actions[7] == 0 &&
+                input_actions[8] == 0 )
         {
-           actions.push_back(10);
-           cout << "Just move" << endl;
+            cout << "No move possible" << endl;
+            actions.push_back(10);
         }
         cout << "Amount of Actions for given state: " << actions.size() << endl;
         for(unsigned int i = 0 ; i < actions.size(); i++)
@@ -753,10 +790,18 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[8] == 1)
+        if(input_actions[0] == 0 &&
+                input_actions[1] == 0 &&
+                input_actions[2] == 0 &&
+                input_actions[3] == 0 &&
+                input_actions[4] == 0 &&
+                input_actions[5] == 0 &&
+                input_actions[6] == 0 &&
+                input_actions[7] == 0 &&
+                input_actions[8] == 0 )
         {
-           actions.push_back(10);
-           cout << "Just move" << endl;
+            cout << "No move possible" << endl;
+            actions.push_back(10);
         }
         cout << "Amount of Actions for given state: " << actions.size() << endl;
         for(unsigned int i = 0 ; i < actions.size(); i++)
@@ -829,10 +874,18 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[8] == 1)
+        if(input_actions[0] == 0 &&
+                input_actions[1] == 0 &&
+                input_actions[2] == 0 &&
+                input_actions[3] == 0 &&
+                input_actions[4] == 0 &&
+                input_actions[5] == 0 &&
+                input_actions[6] == 0 &&
+                input_actions[7] == 0 &&
+                input_actions[8] == 0 )
         {
-           actions.push_back(10);
-           cout << "Just move" << endl;
+            cout << "No move possible" << endl;
+            actions.push_back(10);
         }
         cout << "Amount of Actions for given state: " << actions.size() << endl;
         for(unsigned int i = 0 ; i < actions.size(); i++)
@@ -879,6 +932,8 @@ void player_q_learning::updateQ(std::tuple<int,int,int> player_state_action_i)
     std::ofstream reward_acc_plot ("reward_plot.csv" , std::ios_base::app);
 
     reward_debug << "Reward for #0 " << pos_start_of_turn[0]*10 << " #1: " << pos_start_of_turn[1]*10 <<" #2: "  << pos_start_of_turn[2]*10 <<" #3: " << pos_start_of_turn[3]*10 << " Player Played: "<< player_played_i << endl;
+    cout << "Reward for #0 " << pos_start_of_turn[0]*10 << " #1: " << pos_start_of_turn[1]*10 <<" #2: "  << pos_start_of_turn[2]*10 <<" #3: " << pos_start_of_turn[3]*10 << " Player Played: "<< player_played_i << endl;
+
     reward_acc_plot << acc << "," << endl;
 //    reward_plot_2 << acc_reward_player2 << "," << endl;
 //    reward_plot_3 << acc_reward_player3 << "," << endl;
@@ -934,7 +989,7 @@ int player_q_learning::make_decision()
     cout << "-------------------------------------------------------" << endl;
     for(int i = 0 ; i < 4 ; i++)
     {
-        if(pos_start_of_turn[i]>=-1 && pos_start_of_turn[i] != 99) // Maybe the if should be changed with no end limit
+        if(pos_start_of_turn[i]>=-1 && pos_start_of_turn[i] <= 99) // Maybe the if should be changed with no end limit
         {
             cout << "Player token " << i << " with pos " << pos_start_of_turn[i] << endl;
 
