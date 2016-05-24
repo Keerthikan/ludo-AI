@@ -81,7 +81,7 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
         }
 
         // Get into safety with an other token   0 0 0 0 0 1 0 0 0
-        if(((index == pos_start_of_turn[0])  && (token != 0))|| ((index == pos_start_of_turn[1]) && (token != 1)) || ((index == pos_start_of_turn[2]) && (token != 2)) || ((index == pos_start_of_turn[3]) && (token != 3)))
+        if(((index == pos_start_of_turn[0])  && (token != 0))|| ((index == pos_start_of_turn[1]) && (token != 1)) || ((index == pos_start_of_turn[2]) && (token != 2)) || ((index == pos_start_of_turn[3]) && (token != 3)) && index != 99)
         {
                 input[5] = 1;
               //  cout << "Move to Safety" << endl;
@@ -108,6 +108,11 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                 // Kamikaze if the opponent is on a Globe 0 0 0 0 0 0 0 0 1
                 if(index == 8 || index == 13 || index == 21 || index == 26 || index == 34 || index == 39 || index == 47){
                     input[8] = 1;
+                    if(input[3] == 1)
+                    {
+                        cout << "Remove Going to globe!" << endl;
+                        input[3] = 0;
+                    }
                     //cout << " Move to Globe Kamikaze" << endl;
                     //cout << "player already on: " << i << endl;
 
@@ -116,6 +121,21 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                 else
                 {
                     input[7] = 1;
+                    if(input[3] == 1)
+                    {
+                        cout << "Remove Going to globe!" << endl;
+                        input[3] = 0;
+                    }
+                    if(input[4] == 1)
+                    {
+                        cout << "star" << endl;
+                        input[4] = 0;
+                    }
+                    if(input[6] == 1)
+                    {
+                        cout << "reset going to winnerRoad to killing someone one winner road" << endl;
+                        input[6] = 0;
+                    }
                     //cout << "Move to Kill Opponent" << endl;
                 }
             }
@@ -239,7 +259,7 @@ void player_q_learning::calc_current_state(float input[7], int current_position,
         cout << "On Winner Road" << endl;
     }
     // In safety check
-    if(current_position != -1)
+    if(current_position != -1 && current_position != 99)
     {
         if(((current_position == pos_start_of_turn[0])  && (token != 0))|| ((current_position == pos_start_of_turn[1]) && (token != 1)) || ((current_position == pos_start_of_turn[2]) && (token != 2)) || ((current_position == pos_start_of_turn[3]) && (token != 3)))
         {
@@ -900,17 +920,17 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
 
 void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_i)
 {
-    double alfa = 0.2; // 0 < alfa <= 1
-    double gamma = 0.01; // 0 < gamma <= 1
+    double alfa = 0.02; // 0 < alfa <= 1
+    double gamma = 0.07; // 0 < gamma <= 1
     int player_played_i = std::get<0>(player_state_action_i);
     int previous_state = std::get<1>(player_state_action_i);
     int performed_action = std::get<2>(player_state_action_i);
     int previous_position = std::get<3>(player_state_action_i);
     int current_position = pos_start_of_turn[player_played_i];
-    int current_position_0 = pos_start_of_turn[0];
-    int current_position_1 = pos_start_of_turn[1];
-    int current_position_2 = pos_start_of_turn[2];
-    int current_position_3 = pos_start_of_turn[3];
+    //int current_position_0 = pos_start_of_turn[0];
+    //int current_position_1 = pos_start_of_turn[1];
+    //int current_position_2 = pos_start_of_turn[2];
+    //int current_position_3 = pos_start_of_turn[3];
 
     std::vector<int> current;
     float current_state[7];
@@ -925,75 +945,19 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
         //exit(0);
     }
 
-//    if(current_position_0 > 0 || current_position_0 < 99)
-//    {
-//        cout << " player_1 in between"<< endl;
-//        current_position_0  = current_position_0/10;
-//    }
-//    if(current_position_1 > 0 || current_position_1 < 99)
-//    {
-//        cout << " player_2 in between"<< endl;
-//        current_position_1  = current_position_1/10;
-//    }
-//    if(current_position_2 > 0 || current_position_2 < 99)
-//    {
-//        cout << " player_3 in between" << endl;
-//        current_position_2  = current_position_2/10;
-//    }
-//    if(current_position_3 > 0 || current_position_3 < 99)
-//    {
-//        cout << " player_4 in between" << endl;
-//        current_position_3  = current_position_3/10;
-//    }
-
     //int current_player_state = current[0];
-    //double reward = current_position * 10; // should be based on everyones position...
-    double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
-    if(previous_state == 3)
+    double reward = (current_position * 10)+10; // should be based on everyones position...
+    //double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
+    if(previous_position == current_position && previous_state == current[0]  && current_position != -1)
     {
-        reward = 0;
+        cout << "Haven't moved!" << endl;
+        reward = -1;
     }
-//    if(current_position_0 == 99)
-//    {
-//        cout << " player_1 in goal"<< endl;
-//        reward+=100;
-//    }
-//    if(current_position_1 == 99)
-//    {
-//        cout << " player_2 in goal"<< endl;
-//        reward+=100;
-//    }
-//    if(current_position_2 == 99)
-//    {
-//        cout << " player_3 in goal" << endl;
-//        reward+=100;
-//    }
-//    if(current_position_3 == 99)
-//    {
-//        cout << " player_4 in goal" << endl;
-//        reward+=100;
-//    }
-
-//    if(current_position_0 == -1)
-//    {
-//        cout << " player_1 in goal"<< endl;
-//        reward-=10;
-//    }
-//    if(current_position_1 == -1)
-//    {
-//        cout << " player_2 in goal"<< endl;
-//        reward-=10;
-//    }
-//    if(current_position_2 == -1)
-//    {
-//        cout << " player_3 in goal" << endl;
-//        reward-=10;
-//    }
-//    if(current_position_3 == -1)
-//    {
-//        cout << " player_4 in goal" << endl;
-//        reward-=10;
-//    }
+    if(current_position == 99 && previous_position != current_position)
+    {
+        cout << "you are in goal!" << endl;
+        reward = 99;
+    }
 
     acc += reward;
     cout <<"Accumulated: "<< acc << endl;
@@ -1058,7 +1022,7 @@ int player_q_learning::make_decision()
     cout << "-------------------------------------------------------" << endl;
     for(int i = 0 ; i < 4 ; i++)
     {
-        if(pos_start_of_turn[i]>=-1 && pos_start_of_turn[i] <= 99) // Maybe the if should be changed with no end limit
+        if(pos_start_of_turn[i]>=-1 && pos_start_of_turn[i] < 99) // Maybe the if should be changed with no end limit
         {
             cout << "Player token " << i << " with pos " << pos_start_of_turn[i] << endl;
 
@@ -1116,12 +1080,17 @@ int player_q_learning::make_decision()
         cout << endl;
     }
 
-    update = true;
+    update = false;
     cout << "size after all tokens!: "<<player_state_action.size() << endl;
 
-    player_state_action_previous_position = e_greedy(0.95); // 0 = greedy , 1 = random
+    player_state_action_previous_position = e_greedy(0); // 0 = greedy , 1 = random
 
     cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_previous_position) << " Peforms action: " << std::get<2>(player_state_action_previous_position) << endl;
+    if(pos_start_of_turn[player_played]+dice_roll == 56)
+    {
+        cout << "Player is in goal" << endl;
+        cout << "In goal" << endl;
+    }
     return player_played;
 }
 
@@ -1157,6 +1126,7 @@ std::tuple<int,int,int,int > player_q_learning::e_greedy(double epsilon)
         int position;
         for(unsigned int i = 0 ; i < player_state_action.size(); i++)
         {
+            int player = std::get<0>(player_state_action[i]);
             int state = std::get<1>(player_state_action[i]);
             int action = std::get<2>(player_state_action[i]);
             double test = Q_learning_table(state,action);
@@ -1165,13 +1135,13 @@ std::tuple<int,int,int,int > player_q_learning::e_greedy(double epsilon)
             {
                 max = test;
                 position = i;
+                player_played = player;
             }
                 cout << endl;
         }
-        player_played = position;
         int previous_position = pos_start_of_turn[player_played];
-        int state = std::get<1>(player_state_action[player_played]);
-        int action = std::get<2>(player_state_action[player_played]);
+        int state = std::get<1>(player_state_action[position]);
+        int action = std::get<2>(player_state_action[position]);
         return make_tuple(player_played,state,action,previous_position);
     }
 
