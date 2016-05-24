@@ -898,18 +898,20 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
     return output;
 }
 
-void player_q_learning::updateQ(std::tuple<int,int,int> player_state_action_i)
+void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_i)
 {
     double alfa = 0.6; // 0 < alfa <= 1
     double gamma = 0.8; // 0 < gamma <= 1
     int player_played_i = std::get<0>(player_state_action_i);
     int previous_state = std::get<1>(player_state_action_i);
     int performed_action = std::get<2>(player_state_action_i);
+    int previous_position = std::get<3>(player_state_action_i);
     int current_position = pos_start_of_turn[player_played_i];
     int current_position_0 = pos_start_of_turn[0];
     int current_position_1 = pos_start_of_turn[1];
     int current_position_2 = pos_start_of_turn[2];
     int current_position_3 = pos_start_of_turn[3];
+
     std::vector<int> current;
     float current_state[7];
 
@@ -924,8 +926,8 @@ void player_q_learning::updateQ(std::tuple<int,int,int> player_state_action_i)
     }
 
     //int current_player_state = current[0];
-//    double reward = current_position * 10; // should be based on everyones position...
-      double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
+    //double reward = current_position * 10; // should be based on everyones position...
+    double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
 
       if(current_position_0 == 99)
       {
@@ -950,13 +952,13 @@ void player_q_learning::updateQ(std::tuple<int,int,int> player_state_action_i)
 
       acc += reward;
       cout <<"Accumulated: "<< acc << endl;
-    std::ofstream reward_debug ("reward.txt" , std::ios_base::app);
-    std::ofstream reward_acc_plot ("reward_plot.csv" , std::ios_base::app);
+    //std::ofstream reward_debug ("reward.txt" , std::ios_base::app);
+    //std::ofstream reward_acc_plot ("reward_plot.csv" , std::ios_base::app);
 
-    reward_debug << "Reward for #0 " << pos_start_of_turn[0]*10 << " #1: " << pos_start_of_turn[1]*10 <<" #2: "  << pos_start_of_turn[2]*10 <<" #3: " << pos_start_of_turn[3]*10 << " Player Played: "<< player_played_i << endl;
+    //reward_debug << "Reward for #0 " << pos_start_of_turn[0]*10 << " #1: " << pos_start_of_turn[1]*10 <<" #2: "  << pos_start_of_turn[2]*10 <<" #3: " << pos_start_of_turn[3]*10 << " Player Played: "<< player_played_i << endl;
     cout << "Reward for #0 " << pos_start_of_turn[0]*10 << " #1: " << pos_start_of_turn[1]*10 <<" #2: "  << pos_start_of_turn[2]*10 <<" #3: " << pos_start_of_turn[3]*10 << " Player Played: "<< player_played_i << endl;
 
-    reward_acc_plot << acc << "," << endl;
+    //reward_acc_plot << acc << "," << endl;
 //    reward_plot_2 << acc_reward_player2 << "," << endl;
 //    reward_plot_3 << acc_reward_player3 << "," << endl;
 //    reward_plot_4 << acc_reward_player4 << "," << endl;
@@ -995,9 +997,9 @@ int player_q_learning::make_decision()
     if(update == true)
     {
         cout << "peform update" << endl;
-        cout << "previous player played: " << std::get<0>(player_state_action_played) << endl;
-        cout << "Previous state: " << std::get<1>(player_state_action_played) << " and action: " << std::get<2>(player_state_action_played) << endl;
-        updateQ(player_state_action_played);
+        cout << "previous player played: " << std::get<0>(player_state_action_previous_position) << endl;
+        cout << "Previous state: " << std::get<1>(player_state_action_previous_position) << " and action: " << std::get<2>(player_state_action_previous_position) << endl;
+        updateQ(player_state_action_previous_position);
         player_state_action.clear();
         std::ofstream log("logfile.txt", std::ios_base::app);
         std::ofstream current_table("trainQ.txt");
@@ -1072,13 +1074,13 @@ int player_q_learning::make_decision()
     update = true;
     cout << "size after all tokens!: "<<player_state_action.size() << endl;
 
-    player_state_action_played = e_greedy(0.3);
+    player_state_action_previous_position = e_greedy(0.9); // 0 =  max , 1 = random
 
-    cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_played) << " Peforms action: " << std::get<2>(player_state_action_played) << endl;
+    cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_previous_position) << " Peforms action: " << std::get<2>(player_state_action_previous_position) << endl;
     return player_played;
 }
 
-std::tuple<int,int,int > player_q_learning::e_greedy(double epsilon)
+std::tuple<int,int,int,int > player_q_learning::e_greedy(double epsilon)
 {
     double limit  = epsilon*100;
     std::random_device rd;
@@ -1100,8 +1102,8 @@ std::tuple<int,int,int > player_q_learning::e_greedy(double epsilon)
         int state = std::get<1>(player_state_action[player]);
         int action = dist_a(action_mt);
         player_played = player;
-
-        return make_tuple(player,state,action);
+        int previous_position = pos_start_of_turn[player_played];
+        return make_tuple(player,state,action,previous_position);
     }
     else
     {
@@ -1122,7 +1124,10 @@ std::tuple<int,int,int > player_q_learning::e_greedy(double epsilon)
                 cout << endl;
         }
         player_played = position;
-        return player_state_action[player_played];
+        int previous_position = pos_start_of_turn[player_played];
+        int state = std::get<1>(player_state_action[player_played]);
+        int action = std::get<2>(player_state_action[player_played]);
+        return make_tuple(player_played,state,action,previous_position);
     }
 
 }

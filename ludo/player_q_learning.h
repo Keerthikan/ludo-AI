@@ -17,14 +17,14 @@ private:
     int make_decision();
     std::vector<int> current_state_intepreter(float input[7]);
     std::vector<std::tuple<int,int,int>> player_state_action;
-    std::tuple<int,int,int> player_state_action_played;
-    void updateQ(std::tuple<int,int,int> player_state_action_i);
+    std::tuple<int,int,int,int> player_state_action_previous_position;
+    void updateQ(std::tuple<int, int, int, int> player_state_action_i);
     int player_played;
     void calc_possible_actions(float input[9], int current_position, int dice, int token);
     void calc_current_state(float input[7], int current_position, int token);
     std::vector<std::tuple<int, int, int>> player_state_action_intepreter(float input_states[7], float input_actions[9], int token);
     bool update;
-    std::tuple<int,int,int > e_greedy(double epsilon);
+    std::tuple<int, int, int, int> e_greedy(double epsilon);
 public:
     player_q_learning();
     double acc_reward_player1;
