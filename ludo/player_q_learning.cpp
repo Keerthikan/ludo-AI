@@ -925,72 +925,75 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
         //exit(0);
     }
 
-    if(current_position_0 > 0 || current_position_0 < 99)
-    {
-        cout << " player_1 in between"<< endl;
-        current_position_0  = current_position_0/10;
-    }
-    if(current_position_1 > 0 || current_position_1 < 99)
-    {
-        cout << " player_2 in between"<< endl;
-        current_position_1  = current_position_1/10;
-    }
-    if(current_position_2 > 0 || current_position_2 < 99)
-    {
-        cout << " player_3 in between" << endl;
-        current_position_2  = current_position_2/10;
-    }
-    if(current_position_3 > 0 || current_position_3 < 99)
-    {
-        cout << " player_4 in between" << endl;
-        current_position_3  = current_position_3/10;
-    }
+//    if(current_position_0 > 0 || current_position_0 < 99)
+//    {
+//        cout << " player_1 in between"<< endl;
+//        current_position_0  = current_position_0/10;
+//    }
+//    if(current_position_1 > 0 || current_position_1 < 99)
+//    {
+//        cout << " player_2 in between"<< endl;
+//        current_position_1  = current_position_1/10;
+//    }
+//    if(current_position_2 > 0 || current_position_2 < 99)
+//    {
+//        cout << " player_3 in between" << endl;
+//        current_position_2  = current_position_2/10;
+//    }
+//    if(current_position_3 > 0 || current_position_3 < 99)
+//    {
+//        cout << " player_4 in between" << endl;
+//        current_position_3  = current_position_3/10;
+//    }
 
     //int current_player_state = current[0];
     //double reward = current_position * 10; // should be based on everyones position...
     double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
+    if(previous_state == 3)
+    {
+        reward = 0;
+    }
+//    if(current_position_0 == 99)
+//    {
+//        cout << " player_1 in goal"<< endl;
+//        reward+=100;
+//    }
+//    if(current_position_1 == 99)
+//    {
+//        cout << " player_2 in goal"<< endl;
+//        reward+=100;
+//    }
+//    if(current_position_2 == 99)
+//    {
+//        cout << " player_3 in goal" << endl;
+//        reward+=100;
+//    }
+//    if(current_position_3 == 99)
+//    {
+//        cout << " player_4 in goal" << endl;
+//        reward+=100;
+//    }
 
-    if(current_position_0 == 99)
-    {
-        cout << " player_1 in goal"<< endl;
-        reward+=100;
-    }
-    if(current_position_1 == 99)
-    {
-        cout << " player_2 in goal"<< endl;
-        reward+=100;
-    }
-    if(current_position_2 == 99)
-    {
-        cout << " player_3 in goal" << endl;
-        reward+=100;
-    }
-    if(current_position_3 == 99)
-    {
-        cout << " player_4 in goal" << endl;
-        reward+=100;
-    }
-
-    if(current_position_0 == -1)
-    {
-        cout << " player_1 in goal"<< endl;
-        reward-=10;
-    }
-    if(current_position_1 == -1)
-    {
-        cout << " player_2 in goal"<< endl;
-        reward-=10;
-    }
-    if(current_position_2 == -1)
-    {
-        cout << " player_3 in goal" << endl;
-        reward-=10;
-    }
-    if(current_position_3 == -1)
-    {
-        cout << " player_4 in goal" << endl;
-        reward-=10;
-    }
+//    if(current_position_0 == -1)
+//    {
+//        cout << " player_1 in goal"<< endl;
+//        reward-=10;
+//    }
+//    if(current_position_1 == -1)
+//    {
+//        cout << " player_2 in goal"<< endl;
+//        reward-=10;
+//    }
+//    if(current_position_2 == -1)
+//    {
+//        cout << " player_3 in goal" << endl;
+//        reward-=10;
+//    }
+//    if(current_position_3 == -1)
+//    {
+//        cout << " player_4 in goal" << endl;
+//        reward-=10;
+//    }
 
     acc += reward;
     cout <<"Accumulated: "<< acc << endl;
@@ -1051,7 +1054,7 @@ int player_q_learning::make_decision()
         cout << "table saved" << endl;
         update = false;
     }
-
+    player_state_action.clear();
     cout << "-------------------------------------------------------" << endl;
     for(int i = 0 ; i < 4 ; i++)
     {
@@ -1116,7 +1119,7 @@ int player_q_learning::make_decision()
     update = true;
     cout << "size after all tokens!: "<<player_state_action.size() << endl;
 
-    player_state_action_previous_position = e_greedy(1); // 0 = greedy , 1 = random
+    player_state_action_previous_position = e_greedy(0.95); // 0 = greedy , 1 = random
 
     cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_previous_position) << " Peforms action: " << std::get<2>(player_state_action_previous_position) << endl;
     return player_played;
