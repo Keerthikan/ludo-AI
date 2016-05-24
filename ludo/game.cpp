@@ -274,7 +274,7 @@ void game::turnComplete(bool win){
             fs.open ("result_endstate.txt", std::fstream::in | std::fstream::out | std::fstream::app);
 
             fs << winner[0] << "," << winner[1] << "," << winner[2] << "," << winner[3] << "\n";
-
+            std::cout << winner[0] << "," << winner[1] << "," << winner[2] << "," << winner[3] << std::endl;
             fs.close();
 
             std::cout << "WIN" << std::endl;

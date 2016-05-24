@@ -33,7 +33,7 @@ player_q_learning::player_q_learning()
     }
     else
     {
-        Q_learning_table = Eigen::MatrixXd::Random(7,11);
+        Q_learning_table = Eigen::MatrixXd::Zero(7,11);
     }
     update = false;
     cout << "Q_learning_table initiliazed!" << endl;
@@ -926,6 +926,28 @@ void player_q_learning::updateQ(std::tuple<int,int,int> player_state_action_i)
     //int current_player_state = current[0];
 //    double reward = current_position * 10; // should be based on everyones position...
       double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
+
+      if(current_position_0 == 99)
+      {
+          cout << " player_0 in in goal! - I Give extra credit!" << endl;
+          reward+=100;
+      }
+      if(current_position_1 == 99)
+      {
+          cout << " player_1 in in goal! - I Give extra credit!" << endl;
+          reward+=100;
+      }
+      if(current_position_2 == 99)
+      {
+          cout << " player_2 in in goal! - I Give extra credit!" << endl;
+          reward+=100;
+      }
+      if(current_position_3 == 99)
+      {
+          cout << " player_0 in in goal! - I Give extra credit!" << endl;
+          reward+=100;
+      }
+
       acc += reward;
       cout <<"Accumulated: "<< acc << endl;
     std::ofstream reward_debug ("reward.txt" , std::ios_base::app);
@@ -1050,7 +1072,7 @@ int player_q_learning::make_decision()
     update = true;
     cout << "size after all tokens!: "<<player_state_action.size() << endl;
 
-    player_state_action_played = e_greedy(0.1);
+    player_state_action_played = e_greedy(0.3);
 
     cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_played) << " Peforms action: " << std::get<2>(player_state_action_played) << endl;
     return player_played;
@@ -1068,7 +1090,7 @@ std::tuple<int,int,int > player_q_learning::e_greedy(double epsilon)
         //return random
         std::random_device player_r;
         std::mt19937 player_mt(player_r());
-        std::uniform_int_distribution<int> dist_p(0 , player_state_action.size());
+        std::uniform_int_distribution<int> dist_p(0 , player_state_action.size()-1);
         //
         std::random_device action_r;
         std::mt19937 action_mt(action_r());
