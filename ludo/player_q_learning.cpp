@@ -104,23 +104,26 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
 
         // Kill an opponent
         for(int i = 4 ; i < 16 ; i++ )
-            if(index == pos_start_of_turn[i]){
+            if(index == pos_start_of_turn[i])
+            {
                 // Kamikaze if the opponent is on a Globe 0 0 0 0 0 0 0 0 1
-                if(index == 8 || index == 13 || index == 21 || index == 26 || index == 34 || index == 39 || index == 47){
+                if(index == 8 || index == 13 || index == 21 || index == 26 || index == 34 || index == 39 || index == 47)
+                {
                     input[8] = 1;
                     if(input[3] == 1)
                     {
                         cout << "Remove Going to globe!" << endl;
                         input[3] = 0;
                     }
-                    //cout << " Move to Globe Kamikaze" << endl;
-                    //cout << "player already on: " << i << endl;
+                    cout << " Move to Globe Kamikaze" << endl;
+                    cout << "player already on: " << i << endl;
 
                 }
                 // Kill that Mo-Fo 0 0 0 0 0 0 0 1 0
                 else
                 {
                     input[7] = 1;
+
                     if(input[3] == 1)
                     {
                         cout << "Remove Going to globe!" << endl;
@@ -136,13 +139,19 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                         cout << "reset going to winnerRoad to killing someone one winner road" << endl;
                         input[6] = 0;
                     }
-                    //cout << "Move to Kill Opponent" << endl;
+
+                    if(input[1] == 1)
+                    {
+                        cout << "move to goal Not killing anyone" << endl;
+                        input[7] = 0;
+                    }
+                    cout << "Move to Kill Opponent" << endl;
                 }
             }
 
         // Two opponent on the same square
-        //if(input[5] != 1)
-        //{
+        if(input[5] != 1 || input[8] != 1)
+        {
             for(int j = 1 ; j < 4 ; j++)
             {
                 // Token 1 and 2
@@ -151,6 +160,7 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                     if(index == pos_start_of_turn[j*4])
                     {
                         input[8] = 1;
+                        input[7] = 0;
                         //cout << "Move to Two opponent on the same square" << j*4 << "  " << j*4+1 << endl;
                     }
                 }
@@ -160,6 +170,7 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                     if(index == pos_start_of_turn[j*4])
                     {
                         input[8] = 1;
+                        input[7] = 0;
                         //cout << "Move to Two opponent on the same square" << j*4 << "  " << j*4+2 << endl;
                     }
                 }
@@ -169,6 +180,7 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                     if(index == pos_start_of_turn[j*4])
                     {
                         input[8] = 1;
+                        input[7] = 0;
                         //cout << "Move to Two opponent on the same square" << j*4 << "  " << j*4+3 << endl;
                     }
                 }
@@ -178,6 +190,7 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                     if(index == pos_start_of_turn[j*4])
                     {
                         input[8] = 1;
+                        input[7] = 0;
                         //cout << "Move to Two opponent on the same square" << j*4+1 << "  " << j*4+2 << endl;
                     }
                 }
@@ -187,6 +200,7 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                     if(index == pos_start_of_turn[j*4])
                     {
                         input[8] = 1;
+                        input[7] = 0;
                         //cout << "Move to Two opponent on the same square: " << j*4+1 << "  " << j*4+3 << endl;
                     }
                 }
@@ -196,11 +210,12 @@ void player_q_learning::calc_possible_actions(float input[9],int current_positio
                     if(index == pos_start_of_turn[j*4])
                     {
                         input[8] = 1;
+                        input[7] = 0;
                         //cout << "Move to Two opponent on the same square" << j*4+2 << "  " << j*4+3 << endl;
                     }
                 }
             }
-        //}
+        }
         if(input[0] == 0 && input[1] == 0 && input[3] == 0 && input[4] == 0 && input[5] == 0 && input[6] == 0 && input[7] == 0 && input[8] == 0)
         {
             cout << "No Special move found!" << endl;
@@ -264,6 +279,18 @@ void player_q_learning::calc_current_state(float input[7], int current_position,
         if(((current_position == pos_start_of_turn[0])  && (token != 0))|| ((current_position == pos_start_of_turn[1]) && (token != 1)) || ((current_position == pos_start_of_turn[2]) && (token != 2)) || ((current_position == pos_start_of_turn[3]) && (token != 3)))
         {
             input[5] = 1;
+            if(input[2] == 1 )
+            {
+                input[2] = 0;
+            }
+            if(input[1] == 1)
+            {
+                input[1] = 0;
+            }
+            if(input[4] == 1)
+            {
+                input[4] = 0;
+            }
             cout << "Move to Safety" << endl;
         }
     }
@@ -278,46 +305,44 @@ void player_q_learning::calc_current_state(float input[7], int current_position,
 
 }
 
-std::vector<int> player_q_learning::current_state_intepreter(float input[7]) // skal lige tjekkes om det nødvendigt med vector of ints
+int player_q_learning::current_state_intepreter(float input[7]) // skal lige tjekkes om det nødvendigt med vector of ints
 {
-    std::vector<int> output;
     if(input[0]  == 1)
     {
         cout << "In Home" << endl;
-        output.push_back(0);
+        return 0;
     }
-    if(input[1]  == 1)
+    else if(input[1]  == 1)
     {
         cout << "On globe" << endl;
-        output.push_back(1);
+        return 1;
     }
-    if(input[2]  == 1)
+    else if(input[2]  == 1)
     {
         cout << "On star" << endl;
-        output.push_back(2);
+        return 2;
     }
-    if(input[3]  == 1)
+    else if(input[3]  == 1)
     {
         cout << "in goal" << endl;
-        output.push_back(3);
+        return 3;
     }
-    if(input[4]  == 1)
+    else if(input[4]  == 1)
     {
         cout << "On winner road" << endl;
-        output.push_back(4);
+        return 4;
     }
-    if(input[5]  == 1)
+    else if(input[5]  == 1)
     {
         cout << "In safety" << endl;
-        output.push_back(5);
+        return 5;
     }
-    if(input[6]  == 1)
+    else if(input[6]  == 1)
     {
         cout << "On FreeSpace" << endl;
-        output.push_back(6);
+        return 6;
     }
-    cout << output.size() << endl;
-    return output;
+
 }
 
 std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_intepreter(float input_states[7], float input_actions[9], int token)
@@ -328,66 +353,66 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
         cout << "Token is in Home" << endl;
         int state = 0;
         std::vector<int> actions;
-        if(input_actions[0] == 1)
+        if(input_actions[0] == 1 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(0);
             cout << "Move out from home!" << endl;
         }
 
-        if(input_actions[1] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(1);
             cout << "Move to goal!" << endl;
         }
 
-        if(input_actions[3] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 1 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(2);
             cout << "Move to globe" << endl;
         }
 
-        if(input_actions[4] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(3);
             cout << "Move to star" << endl;
         }
 
-        if(input_actions[4] == 1 && input_actions[1] == 1 )
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(4);
             cout << "Move to goal via star" << endl;
         }
 
-        if(input_actions[5] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 1 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(5);
             cout << "Get into safety with other player" << endl;
         }
 
-        if(input_actions[6] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 1 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(6);
             cout << "Get into winner road" << endl;
         }
 
-        if(input_actions[8] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 1)
         {
             actions.push_back(7);
             cout << "kamikaze if the oppponent is on a globe" << endl;
         }
 
-        if(input_actions[7] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 1 && input_actions[8] == 0)
         {
             actions.push_back(8);
             cout << "Kill that MOFO!" << endl;
         }
-        if(input_actions[2] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 1 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
            actions.push_back(9);
            cout << "Just move" << endl;
         }
 
-        if(input_actions[0] == 0 &&
+        else if(input_actions[0] == 0 &&
                 input_actions[1] == 0 &&
                 input_actions[2] == 0 &&
                 input_actions[3] == 0 &&
@@ -416,65 +441,66 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
         cout << "Token is on globe" << endl;
         int state = 1;
         std::vector<int> actions;
-        if(input_actions[0] == 1)
+        if(input_actions[0] == 1 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(0);
             cout << "Move out from home!" << endl;
         }
 
-        if(input_actions[1] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(1);
             cout << "Move to goal!" << endl;
         }
 
-        if(input_actions[3] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 1 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(2);
             cout << "Move to globe" << endl;
         }
 
-        if(input_actions[4] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(3);
             cout << "Move to star" << endl;
         }
 
-        if(input_actions[4] == 1 && input_actions[1] == 1 )
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(4);
             cout << "Move to goal via star" << endl;
         }
 
-        if(input_actions[5] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 1 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(5);
             cout << "Get into safety with other player" << endl;
         }
 
-        if(input_actions[6] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 1 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(6);
             cout << "Get into winner road" << endl;
         }
 
-        if(input_actions[8] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 1)
         {
             actions.push_back(7);
             cout << "kamikaze if the oppponent is on a globe" << endl;
         }
 
-        if(input_actions[7] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 1 && input_actions[8] == 0)
         {
             actions.push_back(8);
             cout << "Kill that MOFO!" << endl;
         }
-        if(input_actions[2] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 1 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[0] == 0 &&
+
+        else if(input_actions[0] == 0 &&
                 input_actions[1] == 0 &&
                 input_actions[2] == 0 &&
                 input_actions[3] == 0 &&
@@ -500,65 +526,66 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
         cout << "Token is on star" << endl;
         int state = 2;
         std::vector<int> actions;
-        if(input_actions[0] == 1)
+        if(input_actions[0] == 1 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(0);
             cout << "Move out from home!" << endl;
         }
 
-        if(input_actions[1] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(1);
             cout << "Move to goal!" << endl;
         }
 
-        if(input_actions[3] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 1 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(2);
             cout << "Move to globe" << endl;
         }
 
-        if(input_actions[4] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(3);
             cout << "Move to star" << endl;
         }
 
-        if(input_actions[4] == 1 && input_actions[1] == 1 )
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(4);
             cout << "Move to goal via star" << endl;
         }
 
-        if(input_actions[5] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 1 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(5);
             cout << "Get into safety with other player" << endl;
         }
 
-        if(input_actions[6] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 1 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(6);
             cout << "Get into winner road" << endl;
         }
 
-        if(input_actions[8] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 1)
         {
             actions.push_back(7);
             cout << "kamikaze if the oppponent is on a globe" << endl;
         }
 
-        if(input_actions[7] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 1 && input_actions[8] == 0)
         {
             actions.push_back(8);
             cout << "Kill that MOFO!" << endl;
         }
-        if(input_actions[2] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 1 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[0] == 0 &&
+
+        else if(input_actions[0] == 0 &&
                 input_actions[1] == 0 &&
                 input_actions[2] == 0 &&
                 input_actions[3] == 0 &&
@@ -584,65 +611,66 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
         cout << "Token is on goal" << endl;
         int state = 3;
         std::vector<int> actions;
-        if(input_actions[0] == 1)
+        if(input_actions[0] == 1 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(0);
             cout << "Move out from home!" << endl;
         }
 
-        if(input_actions[1] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(1);
             cout << "Move to goal!" << endl;
         }
 
-        if(input_actions[3] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 1 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(2);
             cout << "Move to globe" << endl;
         }
 
-        if(input_actions[4] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(3);
             cout << "Move to star" << endl;
         }
 
-        if(input_actions[4] == 1 && input_actions[1] == 1 )
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(4);
             cout << "Move to goal via star" << endl;
         }
 
-        if(input_actions[5] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 1 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(5);
             cout << "Get into safety with other player" << endl;
         }
 
-        if(input_actions[6] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 1 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(6);
             cout << "Get into winner road" << endl;
         }
 
-        if(input_actions[8] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 1)
         {
             actions.push_back(7);
             cout << "kamikaze if the oppponent is on a globe" << endl;
         }
 
-        if(input_actions[7] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 1 && input_actions[8] == 0)
         {
             actions.push_back(8);
             cout << "Kill that MOFO!" << endl;
         }
-        if(input_actions[2] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 1 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[0] == 0 &&
+
+        else if(input_actions[0] == 0 &&
                 input_actions[1] == 0 &&
                 input_actions[2] == 0 &&
                 input_actions[3] == 0 &&
@@ -668,65 +696,66 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
         cout << "Token is on winner road" << endl;
         int state = 4;
         std::vector<int> actions;
-        if(input_actions[0] == 1)
+        if(input_actions[0] == 1 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(0);
             cout << "Move out from home!" << endl;
         }
 
-        if(input_actions[1] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(1);
             cout << "Move to goal!" << endl;
         }
 
-        if(input_actions[3] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 1 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(2);
             cout << "Move to globe" << endl;
         }
 
-        if(input_actions[4] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(3);
             cout << "Move to star" << endl;
         }
 
-        if(input_actions[4] == 1 && input_actions[1] == 1 )
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(4);
             cout << "Move to goal via star" << endl;
         }
 
-        if(input_actions[5] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 1 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(5);
             cout << "Get into safety with other player" << endl;
         }
 
-        if(input_actions[6] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 1 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(6);
             cout << "Get into winner road" << endl;
         }
 
-        if(input_actions[8] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 1)
         {
             actions.push_back(7);
             cout << "kamikaze if the oppponent is on a globe" << endl;
         }
 
-        if(input_actions[7] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 1 && input_actions[8] == 0)
         {
             actions.push_back(8);
             cout << "Kill that MOFO!" << endl;
         }
-        if(input_actions[2] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 1 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[0] == 0 &&
+
+        else if(input_actions[0] == 0 &&
                 input_actions[1] == 0 &&
                 input_actions[2] == 0 &&
                 input_actions[3] == 0 &&
@@ -752,65 +781,66 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
         cout << "Token is in safety" << endl;
         int state = 5;
         std::vector<int> actions;
-        if(input_actions[0] == 1)
+        if(input_actions[0] == 1 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(0);
             cout << "Move out from home!" << endl;
         }
 
-        if(input_actions[1] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(1);
             cout << "Move to goal!" << endl;
         }
 
-        if(input_actions[3] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 1 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(2);
             cout << "Move to globe" << endl;
         }
 
-        if(input_actions[4] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(3);
             cout << "Move to star" << endl;
         }
 
-        if(input_actions[4] == 1 && input_actions[1] == 1 )
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(4);
             cout << "Move to goal via star" << endl;
         }
 
-        if(input_actions[5] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 1 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(5);
             cout << "Get into safety with other player" << endl;
         }
 
-        if(input_actions[6] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 1 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(6);
             cout << "Get into winner road" << endl;
         }
 
-        if(input_actions[8] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 1)
         {
             actions.push_back(7);
             cout << "kamikaze if the oppponent is on a globe" << endl;
         }
 
-        if(input_actions[7] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 1 && input_actions[8] == 0)
         {
             actions.push_back(8);
             cout << "Kill that MOFO!" << endl;
         }
-        if(input_actions[2] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 1 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[0] == 0 &&
+
+        else if(input_actions[0] == 0 &&
                 input_actions[1] == 0 &&
                 input_actions[2] == 0 &&
                 input_actions[3] == 0 &&
@@ -836,65 +866,66 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
         cout << "Token in freespace" << endl;
         int state = 6;
         std::vector<int> actions;
-        if(input_actions[0] == 1)
+        if(input_actions[0] == 1 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(0);
             cout << "Move out from home!" << endl;
         }
 
-        if(input_actions[1] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(1);
             cout << "Move to goal!" << endl;
         }
 
-        if(input_actions[3] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 1 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(2);
             cout << "Move to globe" << endl;
         }
 
-        if(input_actions[4] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(3);
             cout << "Move to star" << endl;
         }
 
-        if(input_actions[4] == 1 && input_actions[1] == 1 )
+        else if(input_actions[0] == 0 && input_actions[1] == 1 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 1 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(4);
             cout << "Move to goal via star" << endl;
         }
 
-        if(input_actions[5] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 1 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(5);
             cout << "Get into safety with other player" << endl;
         }
 
-        if(input_actions[6] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 1 && input_actions[7] == 0 && input_actions[8] == 0)
         {
             actions.push_back(6);
             cout << "Get into winner road" << endl;
         }
 
-        if(input_actions[8] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 1)
         {
             actions.push_back(7);
             cout << "kamikaze if the oppponent is on a globe" << endl;
         }
 
-        if(input_actions[7] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 0 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 1 && input_actions[8] == 0)
         {
             actions.push_back(8);
             cout << "Kill that MOFO!" << endl;
         }
-        if(input_actions[2] == 1)
+        else if(input_actions[0] == 0 && input_actions[1] == 0 && input_actions[2] == 1 && input_actions[3] == 0 && input_actions[4] == 0 && input_actions[5] == 0 && input_actions[6] == 0 && input_actions[7] == 0 && input_actions[8] == 0)
         {
            actions.push_back(9);
            cout << "Just move" << endl;
         }
-        if(input_actions[0] == 0 &&
+
+        else if(input_actions[0] == 0 &&
                 input_actions[1] == 0 &&
                 input_actions[2] == 0 &&
                 input_actions[3] == 0 &&
@@ -920,8 +951,8 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
 
 void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_i)
 {
-    double alfa = 0.02; // 0 < alfa <= 1
-    double gamma = 0.07; // 0 < gamma <= 1
+    double alfa = 0.7; // 0 < alfa <= 1
+    double gamma = 0.01; // 0 < gamma <= 1
     int player_played_i = std::get<0>(player_state_action_i);
     int previous_state = std::get<1>(player_state_action_i);
     int performed_action = std::get<2>(player_state_action_i);
@@ -932,31 +963,25 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
     //int current_position_2 = pos_start_of_turn[2];
     //int current_position_3 = pos_start_of_turn[3];
 
-    std::vector<int> current;
     float current_state[7];
 
     calc_current_state(current_state,current_position,player_played_i);
-    current = current_state_intepreter(current_state);
-    cout << "size of vector: " << current.size() << endl;
+    int current = current_state_intepreter(current_state);
 
-    if(current.size() > 1)
-    {
-        cout << "Multiple states!" << endl;
-        //exit(0);
-    }
 
     //int current_player_state = current[0];
-    double reward = (current_position * 10)+10; // should be based on everyones position...
+    double reward = current_position; // should be based on everyones position...
     //double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
-    if(previous_position == current_position && previous_state == current[0]  && current_position != -1)
+    if(previous_position == current_position && previous_state == current && current_position != -1)
     {
         cout << "Haven't moved!" << endl;
-        reward = -1;
+        reward += -1; //
     }
+
     if(current_position == 99 && previous_position != current_position)
     {
         cout << "you are in goal!" << endl;
-        reward = 99;
+        reward += 99;
     }
 
     acc += reward;
@@ -975,19 +1000,16 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
     cout << "Immediate Reward: " << reward << endl;
 
     double max = -10000000000000;
-    for(unsigned int j = 0; j< current.size() ; j++)
+    for(int i = 0; i< 11 ;  i++)
     {
-        int current_player_state = current[j];
-        for(int i = 0; i< 11 ;  i++)
+        //cout << current_player_state << " " << i << endl;
+        double test = Q_learning_table(current,i);
+        if(test > max)
         {
-            //cout << current_player_state << " " << i << endl;
-            double test = Q_learning_table(current_player_state,i);
-            if(test > max)
-            {
-                max  = i;
-            }
+            max  = i;
         }
     }
+
     cout << previous_state  << endl;
     cout << performed_action << endl;
     cout << Q_learning_table.cols() << endl;
@@ -1080,10 +1102,14 @@ int player_q_learning::make_decision()
         cout << endl;
     }
 
-    update = false;
+    update = true;
     cout << "size after all tokens!: "<<player_state_action.size() << endl;
-
-    player_state_action_previous_position = e_greedy(0); // 0 = greedy , 1 = random
+    if(player_state_action.size() > 4)
+    {
+        cout << "something wrong!!" << endl;
+        exit(0);
+    }
+    player_state_action_previous_position = e_greedy(1); // 0 = greedy , 1 = random
 
     cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_previous_position) << " Peforms action: " << std::get<2>(player_state_action_previous_position) << endl;
     if(pos_start_of_turn[player_played]+dice_roll == 56)

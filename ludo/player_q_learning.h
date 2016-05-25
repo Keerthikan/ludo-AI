@@ -15,7 +15,7 @@ private:
     std::vector<int> pos_end_of_turn;
     int dice_roll;
     int make_decision();
-    std::vector<int> current_state_intepreter(float input[7]);
+    int current_state_intepreter(float input[7]);
     std::vector<std::tuple<int,int,int>> player_state_action;
     std::tuple<int,int,int,int> player_state_action_previous_position;
     void updateQ(std::tuple<int, int, int, int> player_state_action_i);
