@@ -153,8 +153,11 @@ void game::movePiece(int relative_piece){
     } else {
         //convert to relative position
         if(relative_pos == 99){
-        //    std::cout << "I tought this would be it ";
-        } else if(relative_pos < modifier) {
+            std::cout << "I tought this would be it ";
+        }else if(relative_pos == 51 && color != 0){
+            int tmp_abs = relative_pos - 52;
+            relative_pos = (tmp_abs - modifier); //Alien attack prevention
+        }else if(relative_pos < modifier) {
             relative_pos = relative_pos + 52 - modifier;
         } else if( relative_pos > 50) {
             relative_pos = relative_pos - color * 5 - 1;
@@ -188,6 +191,7 @@ void game::movePiece(int relative_piece){
                 target_pos = new_pos - 52;  //this is the global position wrap around at the green entry point
             }
         }
+
         //check for game stuff
 
         if(isOccupied(target_pos)){
@@ -202,23 +206,22 @@ void game::movePiece(int relative_piece){
     }
     std::vector<int> new_relative = relativePosition();
     switch(color){
-        case 0:
-            emit player1_end(new_relative);
-            break;
-        case 1:
-            emit player2_end(new_relative);
-            break;
-        case 2:
-            emit player3_end(new_relative);
-            break;
-        case 3:
-            emit player4_end(new_relative);
-        default:
-            break;
+    case 0:
+        emit player1_end(new_relative);
+        break;
+    case 1:
+        emit player2_end(new_relative);
+        break;
+    case 2:
+        emit player3_end(new_relative);
+        break;
+    case 3:
+        emit player4_end(new_relative);
+    default:
+        break;
     }
     emit update_graphics(player_positions);
 }
-
 std::vector<int> game::relativePosition(){
     std::vector<int> relative_positons;
     int modifier = color * 13;
