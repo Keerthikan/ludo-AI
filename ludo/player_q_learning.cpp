@@ -1,4 +1,5 @@
 #include "player_q_learning.h"
+#include <limits>
 using namespace std;
 double acc = 0;
 bool FileExists( const std::string &Filename )
@@ -34,6 +35,21 @@ player_q_learning::player_q_learning()
     else
     {
         Q_learning_table = Eigen::MatrixXd::Zero(7,11);
+        double min = std::numeric_limits<double>::min();
+        Q_learning_table(0,1) = min; //Set get in goal inf - it is impossible
+        Q_learning_table(0,2) = min;
+        Q_learning_table(0,3) = min;
+        Q_learning_table(0,4) = min;
+        Q_learning_table(0,5) = min;
+        Q_learning_table(0,6) = min;
+        Q_learning_table(0,7) = min;
+        Q_learning_table(0,8) = min;
+        Q_learning_table(0,9) = min;
+        Q_learning_table(1,0) = min; //Set out from home inf as it is not possible
+        Q_learning_table(2,0) = min; //Set out from home inf as it is not possible
+        Q_learning_table(3,0) = min; //Set out from home inf as it is not possible
+        Q_learning_table(4,0) = min; //Set out from home inf as it is not possible
+        Q_learning_table(5,0) = min; //Set out from home inf as it is not possible
     }
     update = false;
     cout << "Q_learning_table initiliazed!" << endl;
@@ -951,13 +967,15 @@ std::vector<std::tuple<int, int, int>> player_q_learning::player_state_action_in
 
 void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_i)
 {
-    double alfa = 0.7; // 0 < alfa <= 1
-    double gamma = 0.01; // 0 < gamma <= 1
+    double alfa = 0.5; // 0 < alfa <= 1
+    double gamma = 0.1; // 0 < gamma <= 1
     int player_played_i = std::get<0>(player_state_action_i);
     int previous_state = std::get<1>(player_state_action_i);
     int performed_action = std::get<2>(player_state_action_i);
     int previous_position = std::get<3>(player_state_action_i);
     int current_position = pos_start_of_turn[player_played_i];
+    cout << "previous_position: "<<previous_position << endl;
+    cout << "current_position: "<<current_position << endl;
     //int current_position_0 = pos_start_of_turn[0];
     //int current_position_1 = pos_start_of_turn[1];
     //int current_position_2 = pos_start_of_turn[2];
@@ -972,7 +990,7 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
     //int current_player_state = current[0];
     double reward = current_position; // should be based on everyones position...
     //double reward = (current_position_0 + current_position_1 + current_position_2 + current_position_3) * 10;
-    if(previous_position == current_position && previous_state == current && current_position != -1)
+    if(previous_position == current_position && previous_state == current /*&& current_position != -1*/)
     {
         cout << "Haven't moved!" << endl;
         reward += -1; //
@@ -983,7 +1001,11 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
         cout << "you are in goal!" << endl;
         reward += 99;
     }
-
+    if(current_position == 0 && previous_position == -1 && performed_action == 0)
+    {
+        cout << "Added to enforce moving tokens out as a good thing" << endl;
+        reward += 1;
+    }
     acc += reward;
     cout <<"Accumulated: "<< acc << endl;
     //std::ofstream reward_debug ("reward.txt" , std::ios_base::app);
@@ -1109,7 +1131,7 @@ int player_q_learning::make_decision()
         cout << "something wrong!!" << endl;
         exit(0);
     }
-    player_state_action_previous_position = e_greedy(1); // 0 = greedy , 1 = random
+    player_state_action_previous_position = e_greedy(0.2); // 0 = greedy , 1 = random
 
     cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_previous_position) << " Peforms action: " << std::get<2>(player_state_action_previous_position) << endl;
     if(pos_start_of_turn[player_played]+dice_roll == 56)
@@ -1128,21 +1150,33 @@ std::tuple<int,int,int,int > player_q_learning::e_greedy(double epsilon)
     std::uniform_int_distribution<int> dist(1 , 100);
     if(dist(mt)< limit)
     {
+        int firstPlayer = std::get<0>(player_state_action[0]);
+        int lastPlayer = std::get<0>(player_state_action[player_state_action.size() -1]);
         cout << "Choose Random!" << endl;
         //return random
         std::random_device player_r;
         std::mt19937 player_mt(player_r());
-        std::uniform_int_distribution<int> dist_p(0 , player_state_action.size()-1);
-        //
-        std::random_device action_r;
-        std::mt19937 action_mt(action_r());
-        std::uniform_int_distribution<int> dist_a(0 , 10);
-        //
+        std::uniform_int_distribution<int> dist_p(firstPlayer, lastPlayer);
+
         int player = dist_p(player_mt);
-        int state = std::get<1>(player_state_action[player]);
-        int action = dist_a(action_mt);
         player_played = player;
         int previous_position = pos_start_of_turn[player_played];
+        auto it = std::find_if(player_state_action.begin(), player_state_action.end(), [](const std::tuple<int,int,int>& e) {return std::get<0>(e) == 0;});
+        int position = std::distance(player_state_action.begin(),it);
+        cout << "position: " << position << endl;
+        int state = std::get<1>(player_state_action[position]);
+        int action = std::get<2>((player_state_action[position]));
+        for(unsigned int i = 0 ; i < player_state_action.size(); i++)
+        {
+            int player = std::get<0>(player_state_action[i]);
+            int state = std::get<1>(player_state_action[i]);
+            int action = std::get<2>(player_state_action[i]);
+            double test = Q_learning_table(state,action);
+            cout << test << " ";
+        }
+        cout << endl;
+        cout << "Random player: " << player << " state: " << state << " Action: " << action << endl;
+
         return make_tuple(player,state,action,previous_position);
     }
     else
