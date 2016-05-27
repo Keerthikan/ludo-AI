@@ -993,7 +993,7 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
     if(previous_position == current_position && previous_state == current /*&& current_position != -1*/)
     {
         cout << "Haven't moved!" << endl;
-        reward += -1; //
+        reward += -0.3; //
     }
 
     if(current_position == 99 && previous_position != current_position)
@@ -1004,7 +1004,7 @@ void player_q_learning::updateQ(std::tuple<int,int,int,int> player_state_action_
     if(current_position == 0 && previous_position == -1 && performed_action == 0)
     {
         cout << "Added to enforce moving tokens out as a good thing" << endl;
-        reward += 1;
+        reward += 0.3;
     }
     acc += reward;
     cout <<"Accumulated: "<< acc << endl;
@@ -1124,14 +1124,14 @@ int player_q_learning::make_decision()
         cout << endl;
     }
 
-    update = true;
+    update = false;
     cout << "size after all tokens!: "<<player_state_action.size() << endl;
     if(player_state_action.size() > 4)
     {
         cout << "something wrong!!" << endl;
         exit(0);
     }
-    player_state_action_previous_position = e_greedy(0.2); // 0 = greedy , 1 = random
+    player_state_action_previous_position = e_greedy(0); // 0 = greedy , 1 = random
 
     cout << "Player: " << player_played << " In state: " << std::get<1>(player_state_action_previous_position) << " Peforms action: " << std::get<2>(player_state_action_previous_position) << endl;
     if(pos_start_of_turn[player_played]+dice_roll == 56)
